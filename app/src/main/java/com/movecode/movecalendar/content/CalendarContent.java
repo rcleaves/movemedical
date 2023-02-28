@@ -1,5 +1,9 @@
 package com.movecode.movecalendar.content;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,24 +24,24 @@ public class CalendarContent {
     /**
      * A map of sample (placeholder) items, by ID.
      */
-    public static final Map<String, CalendarItem> ITEM_MAP = new HashMap<String, CalendarItem>();
+    public static final Map<Integer, CalendarItem> ITEM_MAP = new HashMap<Integer, CalendarItem>();
 
     private static final int COUNT = 25;
 
     static {
         // Add some sample items.
         for (int i = 1; i <= COUNT; i++) {
-            addItem(createPlaceholderItem(i));
+            addItem(createCalendarItem(i));
         }
     }
 
     private static void addItem(CalendarItem item) {
         ITEMS.add(item);
-        ITEM_MAP.put(item.id, item);
+        ITEM_MAP.put(new Integer(item.id), item);
     }
 
-    private static CalendarItem createPlaceholderItem(int position) {
-        return new CalendarItem(String.valueOf(position), "HONOLULU", "details", new Date());
+    private static CalendarItem createCalendarItem(int position) {
+        return new CalendarItem(String.valueOf(position), "HONOLULU", "details for " + position, new Date());
     }
 
     private static String makeDetails(int position) {
@@ -52,11 +56,19 @@ public class CalendarContent {
     /**
      * Calendar 'data' class
      */
+    @Entity(tableName = "appointments")
     public static class CalendarItem {
-        public final String id;
-        public final String location;
-        public final String details;
-        public final Date date;
+        @PrimaryKey(autoGenerate = true)
+        public String id;
+
+        @ColumnInfo(name = "date")
+        public Date date;
+
+        @ColumnInfo(name = "location")
+        public String location;
+
+        @ColumnInfo(name = "details")
+        public String details;
 
         public CalendarItem(String id, String location, String details, Date date) {
             this.id = id;

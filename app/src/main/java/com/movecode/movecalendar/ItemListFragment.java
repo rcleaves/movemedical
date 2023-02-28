@@ -160,7 +160,7 @@ public class ItemListFragment extends Fragment {
             holder.itemView.setOnLongClickListener(v -> {
                 // Setting the item id as the clip data so that the drop target is able to
                 // identify the id of the content
-                ClipData.Item clipItem = new ClipData.Item(mValues.get(position).id);
+                ClipData.Item clipItem = new ClipData.Item(new Integer(mValues.get(position).id).toString());
                 ClipData dragData = new ClipData(
                         ((CalendarContent.CalendarItem) v.getTag()).details,
                         new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN},

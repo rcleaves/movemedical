@@ -58,9 +58,7 @@ public class ItemDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
-            // Load the placeholder content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
+            // TODO: load from db
             mItem = CalendarContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
         }
     }
