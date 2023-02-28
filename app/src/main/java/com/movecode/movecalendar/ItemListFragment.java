@@ -17,11 +17,15 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.movecode.movecalendar.content.AppointmentDatabase;
+import com.movecode.movecalendar.content.CalendarItem;
 import com.movecode.movecalendar.databinding.FragmentItemListBinding;
 import com.movecode.movecalendar.databinding.ItemListContentBinding;
 
 import com.movecode.movecalendar.content.CalendarContent;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -60,6 +64,7 @@ public class ItemListFragment extends Fragment {
     };
 
     private FragmentItemListBinding binding;
+    public static AppointmentDatabase appointmentDatabase;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -81,7 +86,11 @@ public class ItemListFragment extends Fragment {
         // layout configuration (layout, layout-sw600dp)
         View itemDetailFragmentContainer = view.findViewById(R.id.item_detail_nav_container);
 
+        appointmentDatabase = AppointmentDatabase.getInstance(getContext());
+
         setupRecyclerView(recyclerView, itemDetailFragmentContainer);
+
+
     }
 
     private void setupRecyclerView(
@@ -104,10 +113,10 @@ public class ItemListFragment extends Fragment {
     public static class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
-        private final List<CalendarContent.CalendarItem> mValues;
+        private final List<CalendarItem> mValues;
         private final View mItemDetailFragmentContainer;
 
-        SimpleItemRecyclerViewAdapter(List<CalendarContent.CalendarItem> items,
+        SimpleItemRecyclerViewAdapter(List<CalendarItem> items,
                                       View itemDetailFragmentContainer) {
             mValues = items;
             mItemDetailFragmentContainer = itemDetailFragmentContainer;
@@ -124,15 +133,18 @@ public class ItemListFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(mValues.get(position).id);
+            //holder.mIdView.setText(mValues.get(position).id);
+            Date date = mValues.get(position).date;
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+            holder.mDateView.setText(sdf.format(date));
             holder.mContentView.setText(mValues.get(position).details);
 
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(itemView -> {
-                CalendarContent.CalendarItem item =
-                        (CalendarContent.CalendarItem) itemView.getTag();
+                CalendarItem item =
+                        (CalendarItem) itemView.getTag();
                 Bundle arguments = new Bundle();
-                arguments.putString(ItemDetailFragment.ARG_ITEM_ID, item.id);
+                arguments.putString(ItemDetailFragment.ARG_ITEM_ID, item.id.toString());
                 if (mItemDetailFragmentContainer != null) {
                     Navigation.findNavController(mItemDetailFragmentContainer)
                             .navigate(R.id.fragment_item_detail, arguments);
@@ -147,8 +159,7 @@ public class ItemListFragment extends Fragment {
                  * experience on larger screen devices
                  */
                 holder.itemView.setOnContextClickListener(v -> {
-                    CalendarContent.CalendarItem item =
-                            (CalendarContent.CalendarItem) holder.itemView.getTag();
+                    CalendarItem item = (CalendarItem) holder.itemView.getTag();
                     Toast.makeText(
                             holder.itemView.getContext(),
                             "Context click of item " + item.id,
@@ -162,7 +173,7 @@ public class ItemListFragment extends Fragment {
                 // identify the id of the content
                 ClipData.Item clipItem = new ClipData.Item(new Integer(mValues.get(position).id).toString());
                 ClipData dragData = new ClipData(
-                        ((CalendarContent.CalendarItem) v.getTag()).details,
+                        ((CalendarItem) v.getTag()).details,
                         new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN},
                         clipItem
                 );
@@ -193,11 +204,13 @@ public class ItemListFragment extends Fragment {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             final TextView mIdView;
+            final TextView mDateView;
             final TextView mContentView;
 
             ViewHolder(ItemListContentBinding binding) {
                 super(binding.getRoot());
                 mIdView = binding.idText;
+                mDateView = binding.date;
                 mContentView = binding.content;
             }
 

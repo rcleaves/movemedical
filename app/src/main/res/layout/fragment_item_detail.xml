@@ -45,7 +45,7 @@
             android:orientation="vertical"
             >
 
-            <TextView
+            <EditText
                 android:id="@+id/item_time"
                 style="?android:attr/textAppearanceLarge"
                 android:layout_width="match_parent"
@@ -58,7 +58,7 @@
                 android:text="time"
                 tools:context="com.movecode.movecalendar.ItemDetailFragment" />
 
-            <TextView
+            <EditText
                 android:id="@+id/item_location"
                 style="?android:attr/textAppearanceLarge"
                 android:layout_width="match_parent"
@@ -71,7 +71,7 @@
                 android:text="location"
                 tools:context="com.movecode.movecalendar.ItemDetailFragment" />
 
-            <TextView
+            <EditText
                 android:id="@+id/item_detail"
                 style="?android:attr/textAppearanceLarge"
                 android:layout_width="match_parent"
@@ -97,7 +97,7 @@
         android:layout_marginBottom="16dp"
         app:layout_anchor="@+id/item_detail_scroll_view"
         app:layout_anchorGravity="top|end"
-        app:srcCompat="@android:drawable/ic_delete"
+        app:srcCompat="@android:drawable/ic_menu_save"
         tools:ignore="SpeakableTextPresentCheck" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

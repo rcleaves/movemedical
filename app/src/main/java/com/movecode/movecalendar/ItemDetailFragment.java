@@ -9,11 +9,15 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.EditText;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.movecode.movecalendar.content.CalendarContent;
+import com.movecode.movecalendar.content.CalendarDao;
+import com.movecode.movecalendar.content.CalendarItem;
 import com.movecode.movecalendar.databinding.FragmentItemDetailBinding;
+
+import java.text.SimpleDateFormat;
 
 /**
  * A fragment representing a single Item detail screen.
@@ -32,9 +36,11 @@ public class ItemDetailFragment extends Fragment {
     /**
      * The placeholder content this fragment is presenting.
      */
-    private CalendarContent.CalendarItem mItem;
+    private CalendarItem mItem;
     private CollapsingToolbarLayout mToolbarLayout;
-    private TextView mTextView;
+    private EditText mDetailsView;
+    private EditText mLocationView;
+    private EditText mDateView;
 
     private final View.OnDragListener dragListener = (v, event) -> {
         if (event.getAction() == DragEvent.ACTION_DROP) {
@@ -57,9 +63,12 @@ public class ItemDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(ARG_ITEM_ID)) {
-            // TODO: load from db
-            mItem = CalendarContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+        CalendarDao calendarDao = ItemListFragment.appointmentDatabase.calendarDao();
+
+        if (getArguments().containsKey(ARG_ITEM_ID) && calendarDao != null) {
+            // load from db
+            mItem = calendarDao.getAppointment(getArguments().getString(ARG_ITEM_ID));
+            //mItem = CalendarContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
         }
     }
 
@@ -71,9 +80,11 @@ public class ItemDetailFragment extends Fragment {
         View rootView = binding.getRoot();
 
         mToolbarLayout = rootView.findViewById(R.id.toolbar_layout);
-        mTextView = binding.itemDetail;
+        mDetailsView = (EditText) binding.itemDetail;
+        mLocationView = (EditText) binding.itemLocation;
+        mDateView = (EditText) binding.itemTime;
 
-        // Show the placeholder content as text in a TextView & in the toolbar if available.
+        // Show the details as text in a TextView & in the toolbar if available.
         updateContent();
         rootView.setOnDragListener(dragListener);
         return rootView;
@@ -87,7 +98,10 @@ public class ItemDetailFragment extends Fragment {
 
     private void updateContent() {
         if (mItem != null) {
-            mTextView.setText(mItem.details);
+            mDetailsView.setText(mItem.details);
+            mLocationView.setText(mItem.location);
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            mDateView.setText(sdf.format(mItem.date));
             if (mToolbarLayout != null) {
                 mToolbarLayout.setTitle(mItem.details);
             }
