@@ -5,21 +5,21 @@ import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.os.Bundle;
 import android.view.DragEvent;
-
-import androidx.appcompat.widget.AppCompatSpinner;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+
+import androidx.appcompat.widget.AppCompatSpinner;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.button.MaterialButton;
@@ -49,7 +49,7 @@ public class ItemDetailFragment extends Fragment {
     private int mYear, mMonth, mDay, mHour, mMinute;
 
     /**
-     * The placeholder content this fragment is presenting.
+     * The Calendar content this fragment is presenting.
      */
     private CalendarItem mItem;
     private CollapsingToolbarLayout mToolbarLayout;
@@ -99,7 +99,6 @@ public class ItemDetailFragment extends Fragment {
         mDetailsView = (EditText) binding.itemDetail;
         mLocationView = (AppCompatSpinner) binding.itemLocation;
         mDateView = (EditText) binding.itemDate;
-        //mTimeView = (EditText) binding.itemTime;
         mUpdateButton = (MaterialButton) binding.addButton;
         mDeleteButton = (MaterialButton) binding.deleteButton;
 
@@ -112,42 +111,57 @@ public class ItemDetailFragment extends Fragment {
             mDeleteButton.setEnabled(true);
         }
 
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+        CalendarDao calendarDao = ItemListFragment.appointmentDatabase.calendarDao();
+        NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_item_detail);
+
         mDateView.setOnClickListener(v -> {
-                    // date
-                    final Calendar c = Calendar.getInstance();
-                    mYear = c.get(Calendar.YEAR);
-                    mMonth = c.get(Calendar.MONTH);
-                    mDay = c.get(Calendar.DAY_OF_MONTH);
-
-                    DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
-                            new DatePickerDialog.OnDateSetListener() {
-                                @Override
-                                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                                    mYear = year;
-                                    // bug in callback
-                                    mMonth = ++monthOfYear;
-                                    mDay = dayOfMonth;
-                                    showTimePicker();
-                                }
-                            }, mYear, mMonth, mDay);
-                    datePickerDialog.show();
-                });
-
-        /*mDateView.setOnClickListener(v -> {
-            // Get Current Time
+            // date
             final Calendar c = Calendar.getInstance();
-            int mHour = c.get(Calendar.HOUR_OF_DAY);
-            int mMinute = c.get(Calendar.MINUTE);
+            if (mDateView.getText().length() > 0) {
+                // use date already set
+                Date date = null;
+                try {
+                    date = sdf.parse(mDateView.getText().toString());
+                    c.setTime(date);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
 
-            // Launch Time Picker Dialog
-            TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
-                    (view, hourOfDay, minute) -> mTimeView.setText(hourOfDay + ":" + minute), mHour, mMinute, false);
-            timePickerDialog.show();
-        });*/
+            mYear = c.get(Calendar.YEAR);
+            mMonth = c.get(Calendar.MONTH);
+            mDay = c.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                    (view, year, monthOfYear, dayOfMonth) -> {
+                        mYear = year;
+                        // bug in callback
+                        mMonth = ++monthOfYear;
+                        mDay = dayOfMonth;
+                        showTimePicker(c);
+                    }, mYear, mMonth, mDay);
+            datePickerDialog.show();
+        });
+
+        mDeleteButton.setOnClickListener(v -> {
+            if (mItem != null) {
+                CalendarItem calendarItem = mItem;
+                calendarDao.deleteAppointment(calendarItem);
+                navController.navigateUp();
+            }
+        });
 
         mUpdateButton.setOnClickListener(v -> {
-            CalendarDao calendarDao = ItemListFragment.appointmentDatabase.calendarDao();
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+            // do not allow empty date/time, details
+            if (mDateView.getText().length() < 1) {
+                mDateView.setHintTextColor(ContextCompat.getColor(getContext(), R.color.red));
+                return;
+            }
+            if (mDetailsView.getText().length() < 1) {
+                mDetailsView.setHintTextColor(ContextCompat.getColor(getContext(), R.color.red));
+                return;
+            }
             if (mItem == null) {
                 // create new
                 CalendarItem calendarItem = null;
@@ -181,7 +195,6 @@ public class ItemDetailFragment extends Fragment {
             }
 
             // navigate back
-            NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_item_detail);
             navController.navigateUp();
 
         });
@@ -197,6 +210,20 @@ public class ItemDetailFragment extends Fragment {
         // Set the ArrayAdapter (ad) data on the spinner which binds data to spinner
         mLocationView.setAdapter(ad);
 
+        // set selected text size
+        mLocationView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                TextView textView = (TextView) view;
+                ((TextView) parent.getChildAt(0)).setTextSize(20);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         // Show the details as text in a TextView & in the toolbar if available.
         updateContent();
         rootView.setOnDragListener(dragListener);
@@ -204,9 +231,8 @@ public class ItemDetailFragment extends Fragment {
         return rootView;
     }
 
-    private void showTimePicker() {
+    private void showTimePicker(Calendar c) {
         // Get Current Time
-        final Calendar c = Calendar.getInstance();
         mHour = c.get(Calendar.HOUR_OF_DAY);
         mMinute = c.get(Calendar.MINUTE);
 

@@ -224,7 +224,6 @@ public class ItemListFragment extends Fragment {
                 mDateView = binding.date;
                 mContentView = binding.content;
             }
-
         }
     }
 }
