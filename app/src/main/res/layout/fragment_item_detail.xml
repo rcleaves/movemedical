@@ -70,19 +70,6 @@
                 android:focusable="false"
                 tools:context="com.movecode.movecalendar.ItemDetailFragment" />
 
-            <!--<EditText
-                android:id="@+id/item_time"
-                style="?android:attr/textAppearanceLarge"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:hint="Enter Time"
-                android:paddingStart="@dimen/container_horizontal_margin"
-                android:paddingTop="16dp"
-                android:paddingEnd="@dimen/container_horizontal_margin"
-                android:paddingBottom="16dp"
-                android:textIsSelectable="true"
-                tools:context="com.movecode.movecalendar.ItemDetailFragment" />
--->
             <EditText
                 android:id="@+id/item_detail"
                 style="?android:attr/textAppearanceLarge"
@@ -124,8 +111,6 @@
 
             </LinearLayout>
 
-
-
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
@@ -142,7 +127,5 @@
         app:srcCompat="@android:drawable/ic_menu_save"
         android:visibility="gone"
         tools:ignore="SpeakableTextPresentCheck" />
-
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
