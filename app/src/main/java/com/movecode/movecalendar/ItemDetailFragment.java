@@ -15,12 +15,14 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.button.MaterialButton;
 import com.movecode.movecalendar.content.CalendarContent;
 import com.movecode.movecalendar.content.CalendarDao;
 import com.movecode.movecalendar.content.CalendarItem;
 import com.movecode.movecalendar.databinding.FragmentItemDetailBinding;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * A fragment representing a single Item detail screen.
@@ -45,6 +47,8 @@ public class ItemDetailFragment extends Fragment {
     private EditText mDetailsView;
     private AppCompatSpinner mLocationView;
     private EditText mDateView;
+    private MaterialButton mUpdateButton;
+    private MaterialButton mDeleteButton;
 
     private final View.OnDragListener dragListener = (v, event) -> {
         if (event.getAction() == DragEvent.ACTION_DROP) {
@@ -87,6 +91,29 @@ public class ItemDetailFragment extends Fragment {
         mDetailsView = (EditText) binding.itemDetail;
         mLocationView = (AppCompatSpinner) binding.itemLocation;
         mDateView = (EditText) binding.itemTime;
+        mUpdateButton = (MaterialButton) binding.addButton;
+        mDeleteButton = (MaterialButton) binding.deleteButton;
+
+        mUpdateButton.setOnClickListener(v -> {
+            CalendarDao calendDao = ItemListFragment.appointmentDatabase.calendarDao();
+            if (mItem == null) {
+                // create new
+                CalendarItem calendarItem = new CalendarItem(
+                        null,
+                        locations[mLocationView.getSelectedItemPosition()],
+                        mDetailsView.getText().toString(),
+                        new Date()
+                );
+                calendDao.addAppointment(calendarItem);
+            } else {
+                // update
+                CalendarItem calendarItem = mItem;
+                mItem.location = locations[mLocationView.getSelectedItemPosition()];
+                mItem.details = mDetailsView.getText().toString();
+                calendDao.updateAppointment(calendarItem);
+            }
+
+        });
 
         // spinner setup
         ArrayAdapter ad = new ArrayAdapter(
