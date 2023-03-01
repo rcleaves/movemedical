@@ -4,12 +4,15 @@ import android.content.ClipData;
 import android.os.Bundle;
 import android.view.DragEvent;
 
+import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.movecode.movecalendar.content.CalendarContent;
@@ -28,11 +31,11 @@ import java.text.SimpleDateFormat;
 public class ItemDetailFragment extends Fragment {
 
     /**
-     * The fragment argument representing the item ID that this fragment
-     * represents.
+     * The fragment argument representing the item ID that this fragment represents.
      */
     public static final String ARG_ITEM_ID = "calendar_id";
     public static final String APPOINTMENTS = "APPOINTMENTS";
+    private static final String[] locations = {"San Diego", "St. George", "Park City", "Dallas", "Memphis", "Orlando"};
 
     /**
      * The placeholder content this fragment is presenting.
@@ -40,7 +43,7 @@ public class ItemDetailFragment extends Fragment {
     private CalendarItem mItem;
     private CollapsingToolbarLayout mToolbarLayout;
     private EditText mDetailsView;
-    private EditText mLocationView;
+    private AppCompatSpinner mLocationView;
     private EditText mDateView;
 
     private final View.OnDragListener dragListener = (v, event) -> {
@@ -82,8 +85,19 @@ public class ItemDetailFragment extends Fragment {
 
         mToolbarLayout = rootView.findViewById(R.id.toolbar_layout);
         mDetailsView = (EditText) binding.itemDetail;
-        mLocationView = (EditText) binding.itemLocation;
+        mLocationView = (AppCompatSpinner) binding.itemLocation;
         mDateView = (EditText) binding.itemTime;
+
+        // spinner setup
+        ArrayAdapter ad = new ArrayAdapter(
+                getContext(),
+                android.R.layout.simple_spinner_item,
+                locations);
+
+        ad.setDropDownViewResource( android.R.layout .simple_spinner_dropdown_item);
+
+        // Set the ArrayAdapter (ad) data on the spinner which binds data to spinner
+        mLocationView.setAdapter(ad);
 
         // Show the details as text in a TextView & in the toolbar if available.
         updateContent();
@@ -101,12 +115,25 @@ public class ItemDetailFragment extends Fragment {
     private void updateContent() {
         if (mItem != null) {
             mDetailsView.setText(mItem.details);
-            mLocationView.setText(mItem.location);
+            //mLocationView.setText(mItem.location);
+
+            mLocationView.setSelection(getPosition(mItem.location));
+
             SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             mDateView.setText(sdf.format(mItem.date));
             if (mToolbarLayout != null) {
                 mToolbarLayout.setTitle(mItem.details);
             }
         }
+    }
+
+    private int getPosition(String location) {
+        int result = -1;
+        for(int i=0; i<locations.length; i++) {
+            if (location.equals(locations[i])) {
+                result = i;
+            }
+        }
+        return result;
     }
 }

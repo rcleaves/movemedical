@@ -27,11 +27,12 @@ public class CalendarContent {
     private static final int COUNT = 25;
 
     static {
-        // create test data
         CalendarDao calendarDao = ItemListFragment.appointmentDatabase.calendarDao();
-        if (calendarDao.getAppointments().size() < 1) {
 
-            calendarDao.addAppointment(new CalendarItem(1, "Honolulu", "appt 1 details", new Date()));
+        // create test data
+        if (calendarDao.getAppointments().size() > 0) {
+            ItemListFragment.appointmentDatabase.clearAllTables();
+            calendarDao.addAppointment(new CalendarItem(1, "St. George", "appt 1 details", new Date()));
         }
 
         // Add from db
@@ -49,14 +50,14 @@ public class CalendarContent {
         return new CalendarItem(String.valueOf(position), "HONOLULU", "details for " + position, new Date());
     }*/
 
-    private static String makeDetails(int position) {
+    /*private static String makeDetails(int position) {
         StringBuilder builder = new StringBuilder();
         builder.append("Details about Item: ").append(position);
         for (int i = 0; i < position; i++) {
             builder.append("\nMore details information here.");
         }
         return builder.toString();
-    }
+    }*/
 
 
 }

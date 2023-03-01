@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.movecode.movecalendar.content.AppointmentDatabase;
 import com.movecode.movecalendar.content.CalendarItem;
 import com.movecode.movecalendar.databinding.FragmentItemListBinding;
@@ -70,6 +71,10 @@ public class ItemListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         binding = FragmentItemListBinding.inflate(inflater, container, false);
+        binding.fab.setOnClickListener(v -> {
+            // new appointment
+            Navigation.findNavController(v).navigate(R.id.show_item_detail, null);
+        });
         return binding.getRoot();
 
     }
@@ -89,7 +94,6 @@ public class ItemListFragment extends Fragment {
         appointmentDatabase = AppointmentDatabase.getInstance(getContext());
 
         setupRecyclerView(recyclerView, itemDetailFragmentContainer);
-
 
     }
 
@@ -116,8 +120,7 @@ public class ItemListFragment extends Fragment {
         private final List<CalendarItem> mValues;
         private final View mItemDetailFragmentContainer;
 
-        SimpleItemRecyclerViewAdapter(List<CalendarItem> items,
-                                      View itemDetailFragmentContainer) {
+        SimpleItemRecyclerViewAdapter(List<CalendarItem> items, View itemDetailFragmentContainer) {
             mValues = items;
             mItemDetailFragmentContainer = itemDetailFragmentContainer;
         }
@@ -127,6 +130,7 @@ public class ItemListFragment extends Fragment {
 
             ItemListContentBinding binding =
                     ItemListContentBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+
             return new ViewHolder(binding);
 
         }
@@ -141,13 +145,11 @@ public class ItemListFragment extends Fragment {
 
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(itemView -> {
-                CalendarItem item =
-                        (CalendarItem) itemView.getTag();
+                CalendarItem item = (CalendarItem) itemView.getTag();
                 Bundle arguments = new Bundle();
                 arguments.putString(ItemDetailFragment.ARG_ITEM_ID, item.id.toString());
                 if (mItemDetailFragmentContainer != null) {
-                    Navigation.findNavController(mItemDetailFragmentContainer)
-                            .navigate(R.id.fragment_item_detail, arguments);
+                    Navigation.findNavController(mItemDetailFragmentContainer) .navigate(R.id.fragment_item_detail, arguments);
                 } else {
                     Navigation.findNavController(itemView).navigate(R.id.show_item_detail, arguments);
                 }
