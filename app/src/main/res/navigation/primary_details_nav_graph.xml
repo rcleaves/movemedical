@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/item_list_fragment"
         android:name="com.movecode.movecalendar.ItemListFragment"
-        android:label="Move Medical Calendar">
+        android:label="Appointments List">
         <action
             android:id="@+id/show_item_detail"
             app:destination="@id/item_detail_fragment" />

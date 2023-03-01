@@ -96,6 +96,17 @@ public class ItemDetailFragment extends Fragment {
         mUpdateButton = (MaterialButton) binding.addButton;
         mDeleteButton = (MaterialButton) binding.deleteButton;
 
+        // buttonize
+        if (mItem == null) {
+            mUpdateButton.setText("ADD");
+            mDeleteButton.setEnabled(false);
+        } else {
+            mUpdateButton.setText("UPDATE");
+            mDeleteButton.setEnabled(true);
+        }
+
+
+
         mUpdateButton.setOnClickListener(v -> {
             CalendarDao calendDao = ItemListFragment.appointmentDatabase.calendarDao();
             if (mItem == null) {
@@ -118,6 +129,7 @@ public class ItemDetailFragment extends Fragment {
             // navigate back
             NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_item_detail);
             navController.navigateUp();
+
 
         });
 

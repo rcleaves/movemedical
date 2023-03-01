@@ -3,13 +3,10 @@ package com.movecode.movecalendar;
 import android.content.Context;
 import android.os.Bundle;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -18,8 +15,6 @@ import com.movecode.movecalendar.content.CalendarContent;
 import com.movecode.movecalendar.content.CalendarDao;
 import com.movecode.movecalendar.content.CalendarItem;
 import com.movecode.movecalendar.databinding.ActivityItemDetailBinding;
-
-import java.util.List;
 
 public class ItemDetailHostActivity extends AppCompatActivity {
 
