@@ -2,6 +2,7 @@ package com.movecode.movecalendar;
 
 import android.os.Bundle;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.NavController;
@@ -12,6 +13,8 @@ import androidx.navigation.ui.NavigationUI;
 import com.movecode.movecalendar.databinding.ActivityItemDetailBinding;
 
 public class ItemDetailHostActivity extends AppCompatActivity {
+
+    public static ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +31,11 @@ public class ItemDetailHostActivity extends AppCompatActivity {
                 .build();
 
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     @Override

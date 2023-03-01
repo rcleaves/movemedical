@@ -32,6 +32,7 @@ public class ItemDetailFragment extends Fragment {
      * represents.
      */
     public static final String ARG_ITEM_ID = "calendar_id";
+    public static final String APPOINTMENTS = "APPOINTMENTS";
 
     /**
      * The placeholder content this fragment is presenting.
@@ -87,6 +88,7 @@ public class ItemDetailFragment extends Fragment {
         // Show the details as text in a TextView & in the toolbar if available.
         updateContent();
         rootView.setOnDragListener(dragListener);
+
         return rootView;
     }
 
