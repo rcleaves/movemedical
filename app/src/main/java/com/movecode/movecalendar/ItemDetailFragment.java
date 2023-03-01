@@ -1,11 +1,14 @@
 package com.movecode.movecalendar;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.os.Bundle;
 import android.view.DragEvent;
 
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -13,8 +16,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.TimePicker;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.button.MaterialButton;
@@ -23,7 +28,9 @@ import com.movecode.movecalendar.content.CalendarDao;
 import com.movecode.movecalendar.content.CalendarItem;
 import com.movecode.movecalendar.databinding.FragmentItemDetailBinding;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -38,8 +45,8 @@ public class ItemDetailFragment extends Fragment {
      * The fragment argument representing the item ID that this fragment represents.
      */
     public static final String ARG_ITEM_ID = "calendar_id";
-    public static final String APPOINTMENTS = "APPOINTMENTS";
     private static final String[] locations = {"San Diego", "St. George", "Park City", "Dallas", "Memphis", "Orlando"};
+    private int mYear, mMonth, mDay, mHour, mMinute;
 
     /**
      * The placeholder content this fragment is presenting.
@@ -78,7 +85,6 @@ public class ItemDetailFragment extends Fragment {
         if (getArguments().containsKey(ARG_ITEM_ID) && calendarDao != null) {
             // load from db
             mItem = calendarDao.getAppointment(getArguments().getString(ARG_ITEM_ID));
-            //mItem = CalendarContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
         }
     }
 
@@ -92,7 +98,8 @@ public class ItemDetailFragment extends Fragment {
         mToolbarLayout = rootView.findViewById(R.id.toolbar_layout);
         mDetailsView = (EditText) binding.itemDetail;
         mLocationView = (AppCompatSpinner) binding.itemLocation;
-        mDateView = (EditText) binding.itemTime;
+        mDateView = (EditText) binding.itemDate;
+        //mTimeView = (EditText) binding.itemTime;
         mUpdateButton = (MaterialButton) binding.addButton;
         mDeleteButton = (MaterialButton) binding.deleteButton;
 
@@ -105,31 +112,77 @@ public class ItemDetailFragment extends Fragment {
             mDeleteButton.setEnabled(true);
         }
 
+        mDateView.setOnClickListener(v -> {
+                    // date
+                    final Calendar c = Calendar.getInstance();
+                    mYear = c.get(Calendar.YEAR);
+                    mMonth = c.get(Calendar.MONTH);
+                    mDay = c.get(Calendar.DAY_OF_MONTH);
 
+                    DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                            new DatePickerDialog.OnDateSetListener() {
+                                @Override
+                                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                                    mYear = year;
+                                    // bug in callback
+                                    mMonth = ++monthOfYear;
+                                    mDay = dayOfMonth;
+                                    showTimePicker();
+                                }
+                            }, mYear, mMonth, mDay);
+                    datePickerDialog.show();
+                });
+
+        /*mDateView.setOnClickListener(v -> {
+            // Get Current Time
+            final Calendar c = Calendar.getInstance();
+            int mHour = c.get(Calendar.HOUR_OF_DAY);
+            int mMinute = c.get(Calendar.MINUTE);
+
+            // Launch Time Picker Dialog
+            TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
+                    (view, hourOfDay, minute) -> mTimeView.setText(hourOfDay + ":" + minute), mHour, mMinute, false);
+            timePickerDialog.show();
+        });*/
 
         mUpdateButton.setOnClickListener(v -> {
-            CalendarDao calendDao = ItemListFragment.appointmentDatabase.calendarDao();
+            CalendarDao calendarDao = ItemListFragment.appointmentDatabase.calendarDao();
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
             if (mItem == null) {
                 // create new
-                CalendarItem calendarItem = new CalendarItem(
-                        null,
-                        locations[mLocationView.getSelectedItemPosition()],
-                        mDetailsView.getText().toString(),
-                        new Date()
-                );
-                calendDao.addAppointment(calendarItem);
+                CalendarItem calendarItem = null;
+                try {
+                    calendarItem = new CalendarItem(
+                            null,
+                            locations[mLocationView.getSelectedItemPosition()],
+                            mDetailsView.getText().toString(),
+                            sdf.parse(mDateView.getText().toString())
+                    );
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                calendarDao.addAppointment(calendarItem);
             } else {
                 // update
                 CalendarItem calendarItem = mItem;
                 mItem.location = locations[mLocationView.getSelectedItemPosition()];
                 mItem.details = mDetailsView.getText().toString();
-                calendDao.updateAppointment(calendarItem);
+                try {
+                    calendarItem = new CalendarItem(
+                            mItem.id,
+                            locations[mLocationView.getSelectedItemPosition()],
+                            mDetailsView.getText().toString(),
+                            sdf.parse(mDateView.getText().toString())
+                    );
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                calendarDao.updateAppointment(calendarItem);
             }
 
             // navigate back
             NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_item_detail);
             navController.navigateUp();
-
 
         });
 
@@ -151,6 +204,26 @@ public class ItemDetailFragment extends Fragment {
         return rootView;
     }
 
+    private void showTimePicker() {
+        // Get Current Time
+        final Calendar c = Calendar.getInstance();
+        mHour = c.get(Calendar.HOUR_OF_DAY);
+        mMinute = c.get(Calendar.MINUTE);
+
+        // Launch Time Picker Dialog
+        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
+                new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        mHour = hourOfDay;
+                        mMinute = minute;
+                        mDateView.setText(mMonth + "/" + mDay + "/" + mYear + " " + mHour + ":" + mMinute);
+                        //txtTime.setText(hourOfDay + ":" + minute);
+                    }
+                }, mHour, mMinute, false);
+        timePickerDialog.show();
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -160,11 +233,9 @@ public class ItemDetailFragment extends Fragment {
     private void updateContent() {
         if (mItem != null) {
             mDetailsView.setText(mItem.details);
-            //mLocationView.setText(mItem.location);
-
             mLocationView.setSelection(getPosition(mItem.location));
 
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
             mDateView.setText(sdf.format(mItem.date));
             if (mToolbarLayout != null) {
                 mToolbarLayout.setTitle(mItem.details);

@@ -33,7 +33,7 @@ public class CalendarContent {
         CalendarDao calendarDao = ItemListFragment.appointmentDatabase.calendarDao();
 
         // create test data
-        /*if (calendarDao.getAppointments().size() > 0) {
+        /*if (calendarDao.getAppointments().getValue().size() > 0) {
             ItemListFragment.appointmentDatabase.clearAllTables();
             calendarDao.addAppointment(new CalendarItem(1, "St. George", "appt 1 details", new Date()));
         }*/
