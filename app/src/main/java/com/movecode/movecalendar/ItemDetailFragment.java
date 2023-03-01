@@ -6,6 +6,8 @@ import android.view.DragEvent;
 
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -112,6 +114,10 @@ public class ItemDetailFragment extends Fragment {
                 mItem.details = mDetailsView.getText().toString();
                 calendDao.updateAppointment(calendarItem);
             }
+
+            // navigate back
+            NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_item_detail);
+            navController.navigateUp();
 
         });
 

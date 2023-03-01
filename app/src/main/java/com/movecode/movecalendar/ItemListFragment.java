@@ -39,6 +39,8 @@ import java.util.List;
  */
 public class ItemListFragment extends Fragment {
 
+    public static SimpleItemRecyclerViewAdapter mAdapter;
+
     /**
      * Method to intercept global key events in the
      * item list fragment to trigger keyboard shortcuts
@@ -102,10 +104,17 @@ public class ItemListFragment extends Fragment {
             View itemDetailFragmentContainer
     ) {
 
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(
+        mAdapter = new SimpleItemRecyclerViewAdapter(
                 CalendarContent.ITEMS,
                 itemDetailFragmentContainer
-        ));
+        );
+
+        recyclerView.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     @Override

@@ -1,8 +1,11 @@
 package com.movecode.movecalendar.content;
 
+import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
+
+import com.movecode.movecalendar.ItemDetailHostActivity;
 import com.movecode.movecalendar.ItemListFragment;
 
-import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,11 +23,11 @@ public class CalendarContent {
     public static final List<CalendarItem> ITEMS = new ArrayList<CalendarItem>();
 
     /**
-     * A map of sample (placeholder) items, by ID.
+     * A map of sample items by ID
      */
     public static final Map<Integer, CalendarItem> ITEM_MAP = new HashMap<Integer, CalendarItem>();
 
-    private static final int COUNT = 25;
+    //private static final int COUNT = 25;
 
     static {
         CalendarDao calendarDao = ItemListFragment.appointmentDatabase.calendarDao();
@@ -35,13 +38,18 @@ public class CalendarContent {
             calendarDao.addAppointment(new CalendarItem(1, "St. George", "appt 1 details", new Date()));
         }*/
 
+
         // Add from db
-        for(CalendarItem calendarItem : calendarDao.getAppointments()) {
+        /*for(CalendarItem calendarItem : calendarDao.getAppointments()) {
             addItem(calendarItem);
-        }
+        }*/
     }
 
-    private static void addItem(CalendarItem item) {
+    public static void removeAll() {
+        ITEMS.clear();
+    }
+
+    public static void addItem(CalendarItem item) {
         ITEMS.add(item);
         ITEM_MAP.put(new Integer(item.id), item);
     }
